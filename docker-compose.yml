@@ -1,0 +1,63 @@
+# docker-compose.yml
+#
+# Usage:
+# 1) Build the Spring Boot jar first (from the simple-soap-api directory):
+#      mvn -DskipTests package
+# 2) Start the stack (PostgreSQL + the app):
+#      docker compose up -d
+# 3) SOAP Services base URL:
+#      http://localhost:8080/ws
+# 4) WSDL:
+#      http://localhost:8080/ws/sectorsClasses.wsdl
+#
+# Notes:
+# - The application reads its configuration from environment variables which map
+#   to application.properties placeholders already configured in the project.
+# - The app container mounts the locally built jar from ./target.
+# - PostgreSQL data is persisted in the named volume `pgdata`.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: simple_soap_api_postgres
+    environment:
+      POSTGRES_DB: simple_soap_api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d simple_soap_api"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  app:
+    image: eclipse-temurin:17-jre
+    container_name: simple_soap_api_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /app
+    command: ["java", "-jar", "/app/app.jar"]
+    environment:
+      # Mapped in application.properties
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: simple_soap_api
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      SERVER_PORT: "8080"
+      TZ: UTC
+    volumes:
+      - ./target/simple-soap-api-0.0.1-SNAPSHOT.jar:/app/app.jar:ro
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
