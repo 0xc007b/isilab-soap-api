@@ -6,7 +6,7 @@ Une API SOAP Spring Boot exposant des services web pour deux entités:
 - `Sector` (table `sectors`)
 - `SchoolClass` (table `classes`) liée à `Sector` par une relation many-to-one.
 
-> 📝 **Note**: Cette API SOAP est une conversion directe de l'API REST [`simple-api`](../simple-api/). Elle offre les mêmes fonctionnalités CRUD mais utilise le protocole SOAP/XML au lieu de REST/JSON.
+> 📝 **Note**: Cette API SOAP est une conversion directe de l'API REST [`simple-api`](https://github.com/0xc007b/isilab-spring-api). Elle offre les mêmes fonctionnalités CRUD mais utilise le protocole SOAP/XML au lieu de REST/JSON.
 
 ## Tech stack
 
